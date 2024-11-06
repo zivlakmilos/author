@@ -22,13 +22,16 @@ THE SOFTWARE.
 package create
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type model struct {
-	cfg Config
+	cfg            Config
+	txtProjectName textinput.Model
 }
 
 func showTUI(cfg Config) {
@@ -39,27 +42,46 @@ func showTUI(cfg Config) {
 }
 
 func initModel(cfg Config) model {
+	txtProjectName := textinput.New()
+	txtProjectName.Placeholder = "name"
+	txtProjectName.Focus()
+
 	return model{
-		cfg: cfg,
+		cfg:            cfg,
+		txtProjectName: txtProjectName,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return textinput.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c", "q", "esc":
 			return m, tea.Quit
 		}
 	}
 
-	return m, nil
+	var cmd tea.Cmd = nil
+
+	if m.cfg.ProjectName == "" {
+		m.txtProjectName, cmd = m.txtProjectName.Update(msg)
+	}
+
+	return m, cmd
 }
 
 func (m model) View() string {
-	return "test"
+	if m.cfg.ProjectName == "" {
+		return fmt.Sprintf(
+			"Project Name\n\n%s\n\n%s",
+			m.txtProjectName.View(),
+			"(esc to quit)",
+		)
+	}
+
+	return ""
 }
