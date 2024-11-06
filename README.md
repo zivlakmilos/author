@@ -10,5 +10,5 @@ author is command line tool for writing books and papers
 - [ ] Project generator system
 - [ ] Project compiler
 - [x] Basic template
-- [ ] CLI Help
-- [ ] Add completion script for CLI ussing yargs
+- [x] CLI Help
+- [x] Add completion script for CLI
