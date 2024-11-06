@@ -53,7 +53,11 @@ func initModel(cfg Config) model {
 }
 
 func (m model) Init() tea.Cmd {
-	return textinput.Blink
+	if m.cfg.ProjectName == "" {
+		return textinput.Blink
+	}
+
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

@@ -34,5 +34,8 @@ func DefaultConfig() Config {
 }
 
 func CreateProject(cfg Config) {
-	showTUI(cfg)
+	if cfg.ProjectName == "" || cfg.Template == "" {
+		showTUI(cfg)
+		return
+	}
 }
