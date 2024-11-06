@@ -19,12 +19,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package cli
 
-import (
-	"github.com/zivlakmilos/author/cli"
-)
+import "github.com/spf13/cobra"
 
-func main() {
-	cli.Execute()
+type CreateConfig struct {
+	projectName string
+	template    string
+}
+
+var createCmd = cobra.Command{
+	Use:   "create",
+	Short: "Create new project",
+	Run: func(cmd *cobra.Command, args []string) {
+	},
+}
+
+var createCfg = CreateConfig{}
+
+func init() {
+	rootCmd.AddCommand(&createCmd)
+
+	createCmd.Flags().StringVarP(&createCfg.projectName, "name", "n", "", "project name")
+	createCmd.Flags().StringVarP(&createCfg.template, "template", "t", "", "project template")
 }

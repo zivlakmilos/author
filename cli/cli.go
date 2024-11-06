@@ -21,11 +21,11 @@ THE SOFTWARE.
 */
 package cli
 
-type Cli struct{}
+import "os"
 
-func NewCli() *Cli {
-	return &Cli{}
-}
-
-func (c *Cli) Execute() {
+func Execute() {
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(-1)
+	}
 }

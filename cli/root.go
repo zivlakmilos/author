@@ -19,12 +19,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package cli
 
-import (
-	"github.com/zivlakmilos/author/cli"
-)
+import "github.com/spf13/cobra"
 
-func main() {
-	cli.Execute()
+var rootCmd = &cobra.Command{
+	Use:     "author",
+	Short:   "author is command line tool for writing books and papers",
+	Version: "1.0.0",
+}
+
+func init() {
 }
