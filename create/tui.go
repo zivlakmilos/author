@@ -21,18 +21,45 @@ THE SOFTWARE.
 */
 package create
 
-type Config struct {
-	ProjectName string
-	Template    string
+import (
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+type model struct {
+	cfg Config
 }
 
-func DefaultConfig() Config {
-	return Config{
-		ProjectName: "",
-		Template:    "",
+func showTUI(cfg Config) {
+	p := tea.NewProgram(initModel(cfg))
+	if _, err := p.Run(); err != nil {
+		os.Exit(1)
 	}
 }
 
-func CreateProject(cfg Config) {
-	showTUI(cfg)
+func initModel(cfg Config) model {
+	return model{
+		cfg: cfg,
+	}
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+		}
+	}
+
+	return m, nil
+}
+
+func (m model) View() string {
+	return "test"
 }
