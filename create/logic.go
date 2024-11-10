@@ -19,9 +19,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package create
 
-import "embed"
+import (
+	"fmt"
+	"os"
+	"path"
 
-//go:embed templates
-var Templates embed.FS
+	efs "github.com/zivlakmilos/author/efs"
+	"github.com/zivlakmilos/author/utils"
+)
+
+func createProject(cfg Config) error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	dst := path.Join(cwd, cfg.ProjectName)
+	src := path.Join("templates", cfg.Template)
+
+	if files, _ := os.ReadDir(dst); len(files) > 0 {
+		return fmt.Errorf("directory %s not empty", dst)
+	}
+
+	if !utils.IsDirExists(efs.Templates, src) {
+		return fmt.Errorf("template not found")
+	}
+
+	err = utils.CopyDir(efs.Templates, src, dst)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -19,30 +19,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package create
+package utils
 
-import "github.com/zivlakmilos/author/utils"
+import (
+	"fmt"
+	"os"
+)
 
-type Config struct {
-	ProjectName string
-	Template    string
-}
+const (
+	colorRed  = "\033[0;31m"
+	colorNone = "\033[0m"
+)
 
-func DefaultConfig() Config {
-	return Config{
-		ProjectName: "",
-		Template:    "",
-	}
-}
-
-func CreateProject(cfg Config) {
-	if cfg.ProjectName == "" || cfg.Template == "" {
-		showTUI(cfg)
-		return
-	}
-
-	err := createProject(cfg)
-	if err != nil {
-		utils.ExitWithError(err)
-	}
+func ExitWithError(err error) {
+	fmt.Printf("%s%s", colorRed, "error: ")
+	fmt.Printf("%s%s\n", colorNone, err)
+	os.Exit(1)
 }

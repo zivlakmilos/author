@@ -19,30 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package create
+package efs
 
-import "github.com/zivlakmilos/author/utils"
+import "embed"
 
-type Config struct {
-	ProjectName string
-	Template    string
-}
-
-func DefaultConfig() Config {
-	return Config{
-		ProjectName: "",
-		Template:    "",
-	}
-}
-
-func CreateProject(cfg Config) {
-	if cfg.ProjectName == "" || cfg.Template == "" {
-		showTUI(cfg)
-		return
-	}
-
-	err := createProject(cfg)
-	if err != nil {
-		utils.ExitWithError(err)
-	}
-}
+//go:embed templates
+var Templates embed.FS
