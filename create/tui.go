@@ -23,21 +23,40 @@ package create
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/zivlakmilos/author/utils"
 )
 
 type model struct {
 	cfg            Config
 	txtProjectName textinput.Model
+	lstTemplate    list.Model
+	err            error
+}
+
+type quitWithErrorMsg struct {
+	err error
 }
 
 func showTUI(cfg Config) {
-	p := tea.NewProgram(initModel(cfg))
-	if _, err := p.Run(); err != nil {
-		os.Exit(1)
+	p := tea.NewProgram(initModel(cfg), tea.WithAltScreen())
+	m, err := p.Run()
+	if err != nil {
+		utils.ExitWithError(err)
+	}
+
+	if m, ok := m.(model); ok {
+		if m.cfg.ProjectName == "" || m.cfg.Template == "" {
+			return
+		}
+
+		if m.err != nil {
+			utils.ExitWithError(m.err)
+		}
+		utils.PrintSuccess(fmt.Sprintf("Project '%s' created", m.cfg.ProjectName))
 	}
 }
 
@@ -46,9 +65,16 @@ func initModel(cfg Config) model {
 	txtProjectName.Placeholder = "name"
 	txtProjectName.Focus()
 
+	items := getTemplatesList()
+
+	lstTemplate := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	lstTemplate.Title = "Template"
+
 	return model{
 		cfg:            cfg,
 		txtProjectName: txtProjectName,
+		lstTemplate:    lstTemplate,
+		err:            nil,
 	}
 }
 
@@ -66,13 +92,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
 			return m, tea.Quit
+		case "enter":
+			if m.cfg.ProjectName == "" {
+				m.cfg.ProjectName = m.txtProjectName.Value()
+			} else if m.cfg.Template == "" {
+				i, ok := m.lstTemplate.SelectedItem().(item)
+				if !ok {
+					return m, tea.Quit
+				}
+
+				m.cfg.Template = i.title
+			}
+
+			if m.cfg.ProjectName == "" || m.cfg.Template == "" {
+				return m, nil
+			}
+
+			return m, m.createProjectCmd
 		}
+	case tea.WindowSizeMsg:
+		m.lstTemplate.SetSize(msg.Width, msg.Height)
+	case quitWithErrorMsg:
+		m.err = msg.err
+		return m, tea.Quit
 	}
 
 	var cmd tea.Cmd = nil
 
 	if m.cfg.ProjectName == "" {
 		m.txtProjectName, cmd = m.txtProjectName.Update(msg)
+	} else if m.cfg.Template == "" {
+		m.lstTemplate, cmd = m.lstTemplate.Update(msg)
 	}
 
 	return m, cmd
@@ -87,5 +137,18 @@ func (m model) View() string {
 		)
 	}
 
+	if m.cfg.Template == "" {
+		return m.lstTemplate.View()
+	}
+
 	return ""
+}
+
+func (m model) createProjectCmd() tea.Msg {
+	err := createProject(m.cfg)
+	if err != nil {
+		return quitWithErrorMsg{err: err}
+	}
+
+	return tea.Quit()
 }

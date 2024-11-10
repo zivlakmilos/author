@@ -19,30 +19,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package utils
+package create
 
 import (
-	"fmt"
-	"os"
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/zivlakmilos/author/efs"
 )
 
-const (
-	colorRed   = "\033[0;31m"
-	colorGreen = "\033[0;32m"
-	colorNone  = "\033[0m"
-)
-
-func PrintError(err error) {
-	fmt.Printf("%s%s", colorRed, "error: ")
-	fmt.Printf("%s%s\n", colorNone, err)
+type item struct {
+	title string
+	desc  string
 }
 
-func PrintSuccess(msg string) {
-	fmt.Printf("%s%s", colorGreen, "success: ")
-	fmt.Printf("%s%s\n", colorNone, msg)
+func (i item) Title() string {
+	return i.title
 }
 
-func ExitWithError(err error) {
-	PrintError(err)
-	os.Exit(1)
+func (i item) Description() string {
+	return i.desc
+}
+
+func (i item) FilterValue() string {
+	return i.title
+}
+
+func getTemplatesList() []list.Item {
+	var items []list.Item
+
+	files, err := efs.Templates.ReadDir("templates")
+	if err != nil {
+		return nil
+	}
+
+	for _, f := range files {
+		items = append(items, item{
+			title: f.Name(),
+			desc:  "template",
+		})
+	}
+
+	return items
 }
