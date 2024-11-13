@@ -15,6 +15,7 @@ type ProjectPdf struct {
 	Template       string   `json:"template,omitempty"`
 	OutputFileName string   `json:"outputFileName,omitempty"`
 	Args           []string `json:"args,omitempty"`
+	Biblatex       bool     `json:"biblatex,omitempty"`
 }
 
 type Project struct {

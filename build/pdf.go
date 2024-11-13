@@ -21,8 +21,59 @@ THE SOFTWARE.
 */
 package build
 
-import "github.com/zivlakmilos/author/data"
+import (
+	"os"
+	"path"
+
+	"github.com/zivlakmilos/author/data"
+)
 
 func buildPdf(project *data.Project) error {
+	format := project.Format
+	if format == "markdown" {
+		format = "markdown+rebase_relative_paths"
+	}
+
+	args := []string{
+		"-f", format,
+		"-t", "pdf",
+		"--template", path.Join(project.Pdf.Template, "template.tex"),
+		"-s",
+		"-o", path.Join(project.OutputFolder, project.Pdf.OutputFolder, project.Pdf.OutputFileName),
+		"--listings",
+		"-V lang=rs-SR",
+		"--pdf-engine", "xelatex",
+	}
+
+	if len(project.Pdf.Args) > 0 {
+		args = append(args, project.Pdf.Args...)
+	}
+
+	if project.TableOfContent {
+		args = append(args, "--toc")
+	}
+
+	if len(project.Bibliography) > 0 {
+		args = append(args,
+			"--bibliography",
+			project.Bibliography,
+			"--citeproc",
+		)
+	}
+
+	if project.Pdf.Biblatex {
+		args = append(args, "--biblatex")
+	}
+
+	err := os.MkdirAll(path.Join(project.OutputFolder, project.Pdf.OutputFolder), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = pandoc(project.Sources, args, timeout)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

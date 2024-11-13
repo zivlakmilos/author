@@ -22,9 +22,13 @@ THE SOFTWARE.
 package build
 
 import (
+	"time"
+
 	"github.com/zivlakmilos/author/data"
 	"github.com/zivlakmilos/author/utils"
 )
+
+const timeout = 30 * time.Second
 
 func BuildProject() {
 	project, err := data.LoadProject("project.json")

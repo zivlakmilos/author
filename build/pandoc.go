@@ -30,10 +30,11 @@ import (
 
 func pandoc(srcs, args []string, timeout time.Duration) error {
 	cmd := exec.Command("pandoc", strings.Join(srcs, " "), strings.Join(args, " "))
+	fmt.Printf("%s\n", cmd)
 
-	err := cmd.Run()
+	err := cmd.Start()
 	if err != nil {
-		return err
+		return fmt.Errorf("pandoc failed with error %d", err)
 	}
 
 	ch := make(chan error)
@@ -45,7 +46,7 @@ func pandoc(srcs, args []string, timeout time.Duration) error {
 	select {
 	case err = <-ch:
 		if err != nil {
-			return err
+			return fmt.Errorf("pandoc failed with error '%v'", err)
 		}
 	case <-time.After(timeout):
 		cmd.Process.Kill()
