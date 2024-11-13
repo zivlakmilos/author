@@ -20,3 +20,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 package build
+
+import (
+	"fmt"
+	"os/exec"
+	"strings"
+	"time"
+)
+
+func pandoc(srcs, args []string, timeout time.Duration) error {
+	cmd := exec.Command("pandoc", strings.Join(srcs, " "), strings.Join(args, " "))
+
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	ch := make(chan error)
+	go func(cmd *exec.Cmd) {
+		defer close(ch)
+		ch <- cmd.Wait()
+	}(cmd)
+
+	select {
+	case err = <-ch:
+		if err != nil {
+			return err
+		}
+	case <-time.After(timeout):
+		cmd.Process.Kill()
+		return fmt.Errorf("pandoc execute timeout")
+	}
+
+	return nil
+}

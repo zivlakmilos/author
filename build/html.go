@@ -21,6 +21,8 @@ THE SOFTWARE.
 */
 package build
 
-func buildHtml() error {
+import "github.com/zivlakmilos/author/data"
+
+func buildHtml(project *data.Project) error {
 	return nil
 }

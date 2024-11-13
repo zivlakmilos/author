@@ -35,12 +35,12 @@ func BuildProject() {
 	for _, target := range project.Targets {
 		switch target {
 		case "html":
-			err := buildHtml()
+			err := buildHtml(project)
 			if err != nil {
 				utils.ExitWithError(err)
 			}
 		case "pdf":
-			err := buildHtml()
+			err := buildPdf(project)
 			if err != nil {
 				utils.ExitWithError(err)
 			}

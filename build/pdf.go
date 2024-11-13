@@ -21,6 +21,8 @@ THE SOFTWARE.
 */
 package build
 
-func buildPdf() error {
+import "github.com/zivlakmilos/author/data"
+
+func buildPdf(project *data.Project) error {
 	return nil
 }
