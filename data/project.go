@@ -6,15 +6,15 @@ import (
 )
 
 type ProjectHtml struct {
-	OutputFolder string `json:"outputFolder,omitempty`
-	Template     string `json:"template,omitempty`
+	OutputFolder string `json:"outputFolder,omitempty"`
+	Template     string `json:"template,omitempty"`
 }
 
 type ProjectPdf struct {
-	OutputFolder   string   `json:"outputFolder,omitempty`
-	Template       string   `json:"template,omitempty`
-	OutputFileName string   `json:"outputFileName,omitempty`
-	Args           []string `json:"args,omitempty`
+	OutputFolder   string   `json:"outputFolder,omitempty"`
+	Template       string   `json:"template,omitempty"`
+	OutputFileName string   `json:"outputFileName,omitempty"`
+	Args           []string `json:"args,omitempty"`
 }
 
 type Project struct {
