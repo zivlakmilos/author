@@ -24,13 +24,11 @@ package build
 import (
 	"fmt"
 	"os/exec"
-	"strings"
 	"time"
 )
 
 func pandoc(srcs, args []string, timeout time.Duration) error {
-	cmd := exec.Command("pandoc", strings.Join(srcs, " "), strings.Join(args, " "))
-	fmt.Printf("%s\n", cmd)
+	cmd := exec.Command("pandoc", append(srcs, args...)...)
 
 	err := cmd.Start()
 	if err != nil {
