@@ -3,7 +3,7 @@
   "author": "",
   "version": "",
   "format": "markdown",
-  "toc": "true",
+  "toc": true,
   "bibliography": "src/bibliography.bib",
   "sources": [
     "src/00-doc.md"
