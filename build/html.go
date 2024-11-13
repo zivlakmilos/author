@@ -19,27 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cli
+package build
 
-import (
-	"github.com/spf13/cobra"
-	"github.com/zivlakmilos/author/build"
-)
-
-type BuildConfig struct {
-	projectName string
-}
-
-var buildCmd = cobra.Command{
-	Use:   "build",
-	Short: "Build new project",
-	Run: func(cmd *cobra.Command, args []string) {
-		build.BuildProject()
-	},
-}
-
-var buildCfg = BuildConfig{}
-
-func init() {
-	rootCmd.AddCommand(&buildCmd)
+func buildHtml() error {
+	return nil
 }
