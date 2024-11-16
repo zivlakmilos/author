@@ -21,8 +21,84 @@ THE SOFTWARE.
 */
 package build
 
-import "github.com/zivlakmilos/author/data"
+import (
+	"io/fs"
+	"os"
+	"path"
+
+	"github.com/zivlakmilos/author/data"
+)
 
 func buildHtml(project *data.Project) error {
+	args := []string{
+		"-f", project.Format,
+		"-t", "html",
+		"--template", path.Join(project.Html.Template, "index.html"),
+		"-s",
+		"-o", path.Join(project.OutputFolder, project.Html.OutputFolder, "index.html"),
+	}
+
+	if len(project.Html.Args) > 0 {
+		args = append(args, project.Html.Args...)
+	}
+
+	if project.TableOfContent {
+		args = append(args, "--toc")
+	}
+
+	if len(project.Bibliography) > 0 {
+		args = append(args,
+			"--bibliography",
+			project.Bibliography,
+			"--citeproc",
+		)
+	}
+
+	if project.Biblatex {
+		args = append(args, "--biblatex")
+	}
+
+	err := os.MkdirAll(path.Join(project.OutputFolder, project.Html.OutputFolder, "assets"), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = copyHtmlAssets(path.Join(project.OutputFolder, project.Html.OutputFolder),
+		&project.Html, project.Assets)
+	if err != nil {
+		return err
+	}
+
+	err = pandoc(project.Sources, args, timeout)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func copyHtmlAssets(dst string, html *data.ProjectHtml, assets []string) error {
+	fs.WalkDir(os.DirFS(path.Join(html.Template, "public")), ".", func(pth string, dir fs.DirEntry, err error) error {
+		err = os.RemoveAll(path.Join(dst, pth))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	err := os.CopyFS(dst, os.DirFS(path.Join(html.Template, "public")))
+	if err != nil {
+		return err
+	}
+
+	dstAssets := path.Join(dst, "assets")
+	for _, asset := range assets {
+		err := os.CopyFS(dstAssets, os.DirFS(asset))
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

@@ -13,3 +13,4 @@ author is command line tool for writing books and papers
 - [x] CLI Help
 - [x] Add completion script for CLI
 - [ ] README
+- [ ] Optimise HTML build

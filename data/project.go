@@ -6,8 +6,9 @@ import (
 )
 
 type ProjectHtml struct {
-	OutputFolder string `json:"outputFolder,omitempty"`
-	Template     string `json:"template,omitempty"`
+	OutputFolder string   `json:"outputFolder,omitempty"`
+	Template     string   `json:"template,omitempty"`
+	Args         []string `json:"args,omitempty"`
 }
 
 type ProjectPdf struct {
@@ -15,7 +16,6 @@ type ProjectPdf struct {
 	Template       string   `json:"template,omitempty"`
 	OutputFileName string   `json:"outputFileName,omitempty"`
 	Args           []string `json:"args,omitempty"`
-	Biblatex       bool     `json:"biblatex,omitempty"`
 }
 
 type Project struct {
@@ -25,6 +25,7 @@ type Project struct {
 	Format         string      `json:"format,omitempty"`
 	TableOfContent bool        `json:"toc,omitempty"`
 	Bibliography   string      `json:"bibliography,omitempty"`
+	Biblatex       bool        `json:"biblatex,omitempty"`
 	Sources        []string    `json:"sources,omitempty"`
 	Assets         []string    `json:"assets,omitempty"`
 	OutputFolder   string      `json:"outputFolder,omitempty"`

@@ -19,58 +19,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package build
+package utils
 
 import (
+	"io"
 	"os"
-	"path"
-
-	"github.com/zivlakmilos/author/data"
 )
 
-func buildPdf(project *data.Project) error {
-	format := project.Format
-	if format == "markdown" {
-		format = "markdown+rebase_relative_paths"
-	}
-
-	args := []string{
-		"-f", format,
-		"-t", "pdf",
-		"--template", path.Join(project.Pdf.Template, "template.tex"),
-		"-s",
-		"-o", path.Join(project.OutputFolder, project.Pdf.OutputFolder, project.Pdf.OutputFileName),
-		"--listings",
-		"-V lang=rs-SR",
-		//"--pdf-engine", "xelatex",
-	}
-
-	if len(project.Pdf.Args) > 0 {
-		args = append(args, project.Pdf.Args...)
-	}
-
-	if project.TableOfContent {
-		args = append(args, "--toc")
-	}
-
-	if len(project.Bibliography) > 0 {
-		args = append(args,
-			"--bibliography",
-			project.Bibliography,
-			"--citeproc",
-		)
-	}
-
-	if project.Biblatex {
-		args = append(args, "--biblatex")
-	}
-
-	err := os.MkdirAll(path.Join(project.OutputFolder, project.Pdf.OutputFolder), os.ModePerm)
+func CopyFile(src, dst string) error {
+	srcF, err := os.Open(src)
 	if err != nil {
 		return err
 	}
+	defer srcF.Close()
 
-	err = pandoc(project.Sources, args, timeout)
+	dstF, err := os.Create(src)
+	if err != nil {
+		return err
+	}
+	defer dstF.Close()
+
+	_, err = io.Copy(dstF, srcF)
 	if err != nil {
 		return err
 	}
