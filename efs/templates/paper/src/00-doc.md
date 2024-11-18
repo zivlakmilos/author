@@ -4,8 +4,8 @@ subtitle: Doc Subtitle?
 author: Author Name
 date: 1974-05-16
 description: Doc Description?
-website: https://www.npmjs.com/package/sdbuilder?
-github: https://github.com/zivlakmilos/sdcbuilder?
+website: https://github.com/zivlakmilos/author?
+github: https://github.com/zivlakmilos/author?
 pdf: paper.pdf?
 
 titlepage: true

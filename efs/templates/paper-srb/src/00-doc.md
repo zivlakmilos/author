@@ -4,8 +4,8 @@ subtitle: Podnaslov dokumenta?
 author: Ime autora
 date: 1974-05-16
 description: Opis dokumenta?
-website: https://www.npmjs.com/package/sdbuilder?
-github: https://github.com/zivlakmilos/sdcbuilder?
+website: https://github.com/zivlakmilos/author?
+github: https://github.com/zivlakmilos/author?
 pdf: paper.pdf?
 
 titlepage: true

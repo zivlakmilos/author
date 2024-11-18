@@ -5,6 +5,7 @@
   "format": "markdown",
   "toc": true,
   "bibliography": "src/bibliography.bib",
+  "biblatex": true,
   "sources": [
     "src/00-doc.md"
   ],
