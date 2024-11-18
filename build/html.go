@@ -27,6 +27,8 @@ import (
 	"path"
 
 	"github.com/zivlakmilos/author/data"
+	"github.com/zivlakmilos/author/utils"
+	"golang.org/x/net/html"
 )
 
 func buildHtml(project *data.Project) error {
@@ -74,10 +76,18 @@ func buildHtml(project *data.Project) error {
 		return err
 	}
 
+	err = postProcessHtml(project)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func copyHtmlAssets(dst string, html *data.ProjectHtml, assets []string) error {
+	/*
+	 * TODO: Optimise by copying only changed files?
+	 */
 	fs.WalkDir(os.DirFS(path.Join(html.Template, "public")), ".", func(pth string, dir fs.DirEntry, err error) error {
 		err = os.RemoveAll(path.Join(dst, pth))
 		if err != nil {
@@ -101,4 +111,76 @@ func copyHtmlAssets(dst string, html *data.ProjectHtml, assets []string) error {
 	}
 
 	return nil
+}
+
+func postProcessHtml(project *data.Project) error {
+	filePath := path.Join(project.OutputFolder, project.Html.OutputFolder, "index.html")
+	f, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+
+	node, err := html.Parse(f)
+	f.Close()
+	if err != nil {
+		return err
+	}
+
+	postProcessHtmlNode(node)
+
+	f, err = os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	err = html.Render(f, node)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func postProcessHtmlNode(node *html.Node) {
+	if node.Type == html.ElementNode {
+		if utils.IsHtmlIdEquals(node, "sdbuilder-toc") {
+			postProcessHtmlToc(node)
+			return
+		}
+
+		if utils.IsHtmlIdEquals(node, "sdbuilder-body") {
+			postProcessHtmlBody(node)
+			return
+		}
+	}
+
+	for n := node.FirstChild; n != nil; n = n.NextSibling {
+		postProcessHtmlNode(n)
+	}
+}
+
+func postProcessHtmlToc(node *html.Node) {
+	if node.Type == html.ElementNode {
+		switch node.Data {
+		case "ul":
+			idx := utils.FindOrAppendAtribute(node, "class")
+			node.Attr[idx].Val += "nav flex-column fixed-column"
+		case "li":
+			idx := utils.FindOrAppendAtribute(node, "class")
+			node.Attr[idx].Val += "nav-item"
+		case "a":
+			idx := utils.FindOrAppendAtribute(node, "class")
+			node.Attr[idx].Val += "nav-link"
+		}
+	}
+
+	for n := node.FirstChild; n != nil; n = n.NextSibling {
+		postProcessHtmlToc(n)
+	}
+}
+
+func postProcessHtmlBody(node *html.Node) {
+	for n := node.FirstChild; n != nil; n = n.NextSibling {
+		postProcessHtmlToc(n)
+	}
 }
