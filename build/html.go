@@ -143,12 +143,12 @@ func postProcessHtml(project *data.Project) error {
 
 func postProcessHtmlNode(node *html.Node) {
 	if node.Type == html.ElementNode {
-		if utils.IsHtmlIdEquals(node, "sdbuilder-toc") {
+		if utils.IsHtmlIdEquals(node, "author-toc") {
 			postProcessHtmlToc(node)
 			return
 		}
 
-		if utils.IsHtmlIdEquals(node, "sdbuilder-body") {
+		if utils.IsHtmlIdEquals(node, "author-body") {
 			postProcessHtmlBody(node)
 			return
 		}
