@@ -25,6 +25,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"time"
 
 	"github.com/zivlakmilos/author/data"
 	"github.com/zivlakmilos/author/utils"
@@ -143,14 +144,24 @@ func postProcessHtml(project *data.Project) error {
 
 func postProcessHtmlNode(node *html.Node) {
 	if node.Type == html.ElementNode {
-		if utils.IsHtmlIdEquals(node, "author-toc") {
+		id := utils.GetHtmlId(node)
+
+		if id == "author-toc" {
 			postProcessHtmlToc(node)
 			return
 		}
 
-		if utils.IsHtmlIdEquals(node, "author-body") {
+		if id == "author-body" {
 			postProcessHtmlBody(node)
 			return
+		}
+
+		if id == "author-date" {
+			postProcessHtmlDate(node, false)
+		}
+
+		if id == "author-copyright-year" {
+			postProcessHtmlDate(node, true)
 		}
 	}
 
@@ -180,7 +191,35 @@ func postProcessHtmlToc(node *html.Node) {
 }
 
 func postProcessHtmlBody(node *html.Node) {
-	for n := node.FirstChild; n != nil; n = n.NextSibling {
-		postProcessHtmlToc(n)
+	if node.Type == html.ElementNode {
+		switch node.Data {
+		case "img":
+			idx := utils.FindOrAppendAtribute(node, "style")
+			node.Attr[idx].Val = "max-width: 100%;"
+		case "h1":
+		}
+
+		for n := node.FirstChild; n != nil; n = n.NextSibling {
+			postProcessHtmlBody(n)
+		}
 	}
+}
+
+func postProcessHtmlDate(node *html.Node, onlyYrea bool) {
+	data := node.FirstChild
+	if data == nil {
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", data.Data)
+	if err != nil {
+		return
+	}
+
+	if onlyYrea {
+		data.Data = date.Format("2006")
+		return
+	}
+
+	data.Data = date.Format("02.01.2006.")
 }

@@ -37,6 +37,16 @@ func IsHtmlIdEquals(node *html.Node, id string) bool {
 	return false
 }
 
+func GetHtmlId(node *html.Node) string {
+	for _, attr := range node.Attr {
+		if attr.Key == "id" {
+			return attr.Val
+		}
+	}
+
+	return ""
+}
+
 func FindOrAppendAtribute(node *html.Node, key string) int {
 	for i := range node.Attr {
 		if node.Attr[i].Key == "id" && node.Attr[i].Val == key {
