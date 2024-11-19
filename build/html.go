@@ -32,6 +32,11 @@ import (
 	"golang.org/x/net/html"
 )
 
+type processHtml struct {
+	body    *html.Node
+	section *html.Node
+}
+
 func buildHtml(project *data.Project) error {
 	args := []string{
 		"-f", project.Format,
@@ -127,7 +132,8 @@ func postProcessHtml(project *data.Project) error {
 		return err
 	}
 
-	postProcessHtmlNode(node)
+	p := processHtml{}
+	p.postProcessHtmlNode(node)
 
 	f, err = os.Create(filePath)
 	if err != nil {
@@ -142,35 +148,37 @@ func postProcessHtml(project *data.Project) error {
 	return nil
 }
 
-func postProcessHtmlNode(node *html.Node) {
+func (p *processHtml) postProcessHtmlNode(node *html.Node) {
 	if node.Type == html.ElementNode {
 		id := utils.GetHtmlId(node)
 
 		if id == "author-toc" {
-			postProcessHtmlToc(node)
+			p.postProcessHtmlToc(node)
 			return
 		}
 
 		if id == "author-body" {
-			postProcessHtmlBody(node)
+			p.body = node
+			p.section = nil
+			p.postProcessHtmlBody(node)
 			return
 		}
 
 		if id == "author-date" {
-			postProcessHtmlDate(node, false)
+			p.postProcessHtmlDate(node, false)
 		}
 
 		if id == "author-copyright-year" {
-			postProcessHtmlDate(node, true)
+			p.postProcessHtmlDate(node, true)
 		}
 	}
 
 	for n := node.FirstChild; n != nil; n = n.NextSibling {
-		postProcessHtmlNode(n)
+		p.postProcessHtmlNode(n)
 	}
 }
 
-func postProcessHtmlToc(node *html.Node) {
+func (p *processHtml) postProcessHtmlToc(node *html.Node) {
 	if node.Type == html.ElementNode {
 		switch node.Data {
 		case "ul":
@@ -186,26 +194,21 @@ func postProcessHtmlToc(node *html.Node) {
 	}
 
 	for n := node.FirstChild; n != nil; n = n.NextSibling {
-		postProcessHtmlToc(n)
+		p.postProcessHtmlToc(n)
 	}
 }
 
-func postProcessHtmlBody(node *html.Node) {
-	if node.Type == html.ElementNode {
-		switch node.Data {
-		case "img":
-			idx := utils.FindOrAppendAtribute(node, "style")
-			node.Attr[idx].Val = "max-width: 100%;"
-		case "h1":
-		}
+func (p *processHtml) postProcessHtmlBody(node *html.Node) {
+	p.body = node
 
-		for n := node.FirstChild; n != nil; n = n.NextSibling {
-			postProcessHtmlBody(n)
-		}
+	var nn *html.Node
+	for n := node.FirstChild; n != nil; n = nn {
+		nn = n.NextSibling
+		p.postProcessHtmlSection(n)
 	}
 }
 
-func postProcessHtmlDate(node *html.Node, onlyYrea bool) {
+func (p *processHtml) postProcessHtmlDate(node *html.Node, onlyYrea bool) {
 	data := node.FirstChild
 	if data == nil {
 		return
@@ -222,4 +225,90 @@ func postProcessHtmlDate(node *html.Node, onlyYrea bool) {
 	}
 
 	data.Data = date.Format("02.01.2006.")
+}
+
+func (p *processHtml) postProcessHtmlSection(node *html.Node) {
+	if node.Type == html.ElementNode {
+		if node.Data == "h1" {
+			p.postProcessHtmlCreateSection(node)
+		}
+
+		if p.section != nil && node.Data != "section" {
+			p.postProcessHtmlSectionElement(node)
+		}
+
+		p.postProcessHtmlTag(node)
+	}
+}
+
+func (p *processHtml) postProcessHtmlCreateSection(node *html.Node) {
+	id := utils.GetHtmlId(node)
+	node.Attr = nil
+
+	if p.section != nil {
+		n := &html.Node{
+			Type: html.ElementNode,
+			Data: "div",
+			Attr: []html.Attribute{
+				{
+					Namespace: "",
+					Key:       "class",
+					Val:       "divider",
+				},
+			},
+		}
+		p.body.AppendChild(n)
+	}
+
+	n := &html.Node{
+		Type: html.ElementNode,
+		Data: "section",
+		Attr: []html.Attribute{
+			{
+				Namespace: "",
+				Key:       "id",
+				Val:       id,
+			},
+		},
+	}
+	p.body.AppendChild(n)
+
+	p.section = n
+}
+
+func (p *processHtml) postProcessHtmlSectionElement(node *html.Node) {
+	p.body.RemoveChild(node)
+	p.section.AppendChild(node)
+}
+
+func (p *processHtml) postProcessHtmlTag(node *html.Node) {
+	if node.Type == html.ElementNode {
+		switch node.Data {
+		case "img":
+			p.postProcessHtmlImg(node)
+		case "p":
+			p.postProcessHtmlParagraph(node)
+		case "table":
+			p.postProcessHtmlTable(node)
+		}
+	}
+
+	for n := node.FirstChild; n != nil; n = n.NextSibling {
+		p.postProcessHtmlTag(n)
+	}
+}
+
+func (p *processHtml) postProcessHtmlImg(node *html.Node) {
+	idx := utils.FindOrAppendAtribute(node, "style")
+	node.Attr[idx].Val = "max-width: 100%;"
+}
+
+func (p *processHtml) postProcessHtmlParagraph(node *html.Node) {
+	idx := utils.FindOrAppendAtribute(node, "style")
+	node.Attr[idx].Val = "text-indent: 20px; text-align: justify;"
+}
+
+func (p *processHtml) postProcessHtmlTable(node *html.Node) {
+	idx := utils.FindOrAppendAtribute(node, "class")
+	node.Attr[idx].Val = "table table-bordered"
 }
