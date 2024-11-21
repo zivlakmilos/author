@@ -59,5 +59,5 @@ author --help
 - [x] Basic template
 - [x] CLI Help
 - [x] Add completion script for CLI
-- [ ] Watch
+- [x] Watch
 - [x] README
