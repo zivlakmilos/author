@@ -23,6 +23,8 @@ package watch
 
 import (
 	"time"
+
+	"github.com/zivlakmilos/author/utils"
 )
 
 const interval = 100 * time.Millisecond
@@ -44,4 +46,14 @@ func Watch(cfg Config) {
 		cfg.Html = true
 		cfg.Pdf = true
 	}
+
+	w := newWatcher(cfg)
+
+	err := w.loadProject()
+	if err != nil {
+		utils.ExitWithError(err)
+		return
+	}
+
+	w.run()
 }

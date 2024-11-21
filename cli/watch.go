@@ -39,6 +39,6 @@ var watchCfg = watch.DefaultConfig()
 func init() {
 	rootCmd.AddCommand(&watchCmd)
 
-	createCmd.Flags().BoolVar(&watchCfg.Html, "html", false, "build html")
-	createCmd.Flags().BoolVar(&watchCfg.Pdf, "pdf", false, "build pdf")
+	watchCmd.Flags().BoolVar(&watchCfg.Html, "html", false, "build html")
+	watchCmd.Flags().BoolVar(&watchCfg.Pdf, "pdf", false, "build pdf")
 }

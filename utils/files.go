@@ -19,45 +19,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package build
+package utils
 
 import (
+	"os"
 	"time"
-
-	"github.com/zivlakmilos/author/data"
-	"github.com/zivlakmilos/author/utils"
 )
 
-const timeout = 30 * time.Second
-
-func BuildProject() {
-	project, err := data.LoadProject("project.json")
+func GetFileModTime(filePath string) (time.Time, error) {
+	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		utils.ExitWithError(err)
+		return time.Time{}, err
 	}
 
-	err = BuildProjectRun(project)
-	if err != nil {
-		utils.ExitWithError(err)
-		return
-	}
-}
-
-func BuildProjectRun(project *data.Project) error {
-	for _, target := range project.Targets {
-		switch target {
-		case "html":
-			err := buildHtml(project)
-			if err != nil {
-				return err
-			}
-		case "pdf":
-			err := buildPdf(project)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+	return fileInfo.ModTime(), nil
 }

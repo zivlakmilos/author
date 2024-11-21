@@ -27,9 +27,10 @@ import (
 )
 
 const (
-	colorRed   = "\033[0;31m"
-	colorGreen = "\033[0;32m"
-	colorNone  = "\033[0m"
+	colorRed    = "\033[0;31m"
+	colorGreen  = "\033[0;32m"
+	colorYellow = "\033[0;33m"
+	colorNone   = "\033[0m"
 )
 
 func PrintError(err error) {
@@ -39,6 +40,11 @@ func PrintError(err error) {
 
 func PrintSuccess(msg string) {
 	fmt.Printf("%s%s", colorGreen, "success: ")
+	fmt.Printf("%s%s\n", colorNone, msg)
+}
+
+func PrintInfo(msg string) {
+	fmt.Printf("%s%s", colorYellow, "info: ")
 	fmt.Printf("%s%s\n", colorNone, msg)
 }
 
