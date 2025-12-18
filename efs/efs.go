@@ -23,5 +23,5 @@ package efs
 
 import "embed"
 
-//go:embed templates
+//go:embed all:templates
 var Templates embed.FS
